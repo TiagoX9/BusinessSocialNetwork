@@ -8,10 +8,10 @@ const validateProfileInput = require("../../validation/profile");
 const validateExperienceInput = require("../../validation/experience");
 const validateEducationInput = require("../../validation/education");
 
-// Load Profile model
+// Load Profile Model
 const Profile = require("../../models/Profile");
 
-// Load User Profile
+// Load User Model
 const User = require("../../models/User");
 
 // @route               GET api/profile/test
@@ -281,6 +281,21 @@ router.delete(
         profile.save().then(profile => res.json(profile));
       })
       .catch(err => res.status(404).json(err));
+  }
+);
+
+// @route               DELETE api/profile
+// @description         Delete user from profile
+// @access              Private
+router.delete(
+  "/",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    Profile.findOneAndRemove({ user: req.user.id }).then(() => {
+      User.findOneAndRemove({ _id: req.user.id }).then(() => {
+        res.json({ success: true });
+      });
+    });
   }
 );
 
